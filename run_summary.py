@@ -4,7 +4,6 @@ import os
 import pathlib
 import requests
 from contextlib import contextmanager
-from typing import NamedTuple
 
 # This query combines all different machines and different status codes.
 # This could obscure cases where a particular machine has a much worse error
@@ -16,13 +15,17 @@ RENDER_URL = GRAPHITE_URL + '/render/?format=csv'
 OUTPUT_HEADERS = ['Timestamp', '5xx Responses', 'Total Responses']
 GRAPHITE_DATE = '%Y%m%d'
 
-class App(NamedTuple):
+class App:
     '''
     An application in graphite
     '''
-    name: str
-    host_group: str
-    host_name: str
+    def __init__(self, name, host_group, host_name):
+        self.name = name
+        self.host_group = host_group
+        self.host_name = host_name
+
+    def __str__(self):
+        return self.name
 
     def response_count_query(self, status='*'):
         return METRIC_PATTERN.format(
@@ -52,7 +55,7 @@ class ReportingPeriod:
         }
 
     def __str__(self):
-        return f'{self.date_from.strftime(GRAPHITE_DATE)}_{self.date_to.strftime(GRAPHITE_DATE)}'
+        return self.date_from.strftime(GRAPHITE_DATE) + '_' + self.date_to.strftime(GRAPHITE_DATE)
 
 
 APPS = [
@@ -114,7 +117,11 @@ def output_csv(app):
     Create a CSV writer for an app
     '''
     outputdir = pathlib.Path('output')
-    outputdir.mkdir(exist_ok=True)
+    try:
+        outputdir.mkdir()
+    except FileExistsError:
+        pass
+
     filename = app.name + '.csv'
     full_path = outputdir / filename
     with full_path.open('w', newline='') as csvfile:
@@ -150,7 +157,7 @@ if __name__ == '__main__':
     report_month = ReportingPeriod()
 
     for app in APPS:
-        print(f'Fetching {app} {report_month}')
+        print('Fetching {app} {report_month}'.format(app=app, report_month=report_month))
 
         # All 5xx responses
         params = dict(target=app.response_count_query('5*'))
