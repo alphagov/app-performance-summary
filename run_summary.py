@@ -138,6 +138,10 @@ def combine_datasets(error_response, all_response):
         error_timestamp = error_row[1] if error_row else None
         total_timestamp = total_row[1]
 
+        if total_row[2] == '':
+            print('warning: no data for {timestamp}'.format(timestamp=total_timestamp))
+            continue
+
         # Every sample in the totals data should be in the errors data
         assert (error_row is None) or (error_timestamp <= total_timestamp)
 
