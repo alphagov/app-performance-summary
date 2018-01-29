@@ -112,7 +112,7 @@ def get_csv(params):
 
 
 @contextmanager
-def output_csv(app):
+def output_csv(app, report_period):
     '''
     Create a CSV writer for an app
     '''
@@ -122,7 +122,11 @@ def output_csv(app):
     except FileExistsError:
         pass
 
-    filename = app.name + '.csv'
+    filename = '{app_name}_{report_period}.csv'.format(
+        app_name=app.name,
+        report_period=report_period
+    )
+
     full_path = outputdir / filename
     with full_path.open('w', newline='') as csvfile:
         yield csv.writer(csvfile)
@@ -173,7 +177,7 @@ if __name__ == '__main__':
         params.update(report_month.params())
         all_response = get_csv(params)
 
-        with output_csv(app) as writer:
+        with output_csv(app, report_month) as writer:
             writer.writerow(OUTPUT_HEADERS)
 
             for combined_row in combine_datasets(error_response, all_response):
