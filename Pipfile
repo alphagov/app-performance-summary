@@ -7,7 +7,7 @@ name = "pypi"
 
 [packages]
 
-requests = "*"
+pandas = "*"
 
 
 [dev-packages]

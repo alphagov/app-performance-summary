@@ -1,9 +1,8 @@
 import datetime
-import csv
 import os
 import pathlib
-import requests
-from contextlib import contextmanager
+import pandas as pd
+from urllib.parse import urlencode
 
 # This query combines all different machines and different status codes.
 # This could obscure cases where a particular machine has a much worse error
@@ -14,6 +13,7 @@ GRAPHITE_URL = os.environ.get('GRAPHITE_URL', 'https://graphite.publishing.servi
 RENDER_URL = GRAPHITE_URL + '/render/?format=csv'
 OUTPUT_HEADERS = ['Timestamp', '5xx Responses', 'Total Responses']
 GRAPHITE_DATE = '%Y%m%d'
+
 
 class App:
     '''
@@ -107,12 +107,13 @@ def get_csv(params):
     '''
     Fetch a CSV from the graphite API
     '''
-    response = requests.get(RENDER_URL, params=params, stream=True, timeout=10)
-    return csv.reader(response.iter_lines(decode_unicode=True), )
+    query_params = urlencode(params)
+    full_url = RENDER_URL + '&' + query_params
+
+    return pd.read_csv(full_url, header=None, names=('timestamp', 'count'), usecols=(1,2))
 
 
-@contextmanager
-def output_csv(app, report_period):
+def output_csv(app, report_period, data):
     '''
     Create a CSV writer for an app
     '''
@@ -128,37 +129,21 @@ def output_csv(app, report_period):
     )
 
     full_path = outputdir / filename
-    with full_path.open('w', newline='') as csvfile:
-        yield csv.writer(csvfile)
+    data.to_csv(full_path, index=False)
 
 
 def combine_datasets(error_response, all_response):
     '''
     Combine the two CSVs into one data set
     '''
-    error_row = next(error_response)
-
-    for total_row in all_response:
-        error_timestamp = error_row[1] if error_row else None
-        total_timestamp = total_row[1]
-
-        if total_row[2] == '':
-            print('warning: no data for {timestamp}'.format(timestamp=total_timestamp))
-            continue
-
-        # Every sample in the totals data should be in the errors data
-        assert (error_row is None) or (error_timestamp <= total_timestamp)
-
-        if error_timestamp == total_timestamp:
-            yield [total_timestamp, error_row[2], total_row[2]]
-
-            # Only iterate the error response if the data matches
-            try:
-                error_row = next(error_response)
-            except StopIteration:
-                error_row = None
-        else:
-            yield [total_timestamp, None, total_row[2]]
+    return pd.merge(
+        error_response,
+        all_response,
+        on='timestamp',
+        validate = 'one_to_one',
+        how='right',
+        suffixes=('_total', '_error')
+    )
 
 
 if __name__ == '__main__':
@@ -177,8 +162,6 @@ if __name__ == '__main__':
         params.update(report_month.params())
         all_response = get_csv(params)
 
-        with output_csv(app, report_month) as writer:
-            writer.writerow(OUTPUT_HEADERS)
+        data = combine_datasets(error_response, all_response)
 
-            for combined_row in combine_datasets(error_response, all_response):
-                writer.writerow(combined_row)
+        output_csv(app, report_month, data)
