@@ -107,7 +107,7 @@ def get_csv(params):
     '''
     Fetch a CSV from the graphite API
     '''
-    response = requests.get(RENDER_URL, params=params, stream=True)
+    response = requests.get(RENDER_URL, params=params, stream=True, timeout=10)
     return csv.reader(response.iter_lines(decode_unicode=True), )
 
 
