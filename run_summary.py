@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 # This could obscure cases where a particular machine has a much worse error
 # rate than the others, but we want to make sure that all user requests are
 # counted.
-METRIC_PATTERN = 'sum(stats_counts.{host_name}-*_{host_group}.nginx_logs.{app_name}_publishing_service_gov_uk.http_{status})'
+METRIC_PATTERN = 'sum(stats_counts.*.nginx_logs.{app_name}_publishing_service_gov_uk.http_{status})'
 GRAPHITE_URL = os.environ.get('GRAPHITE_URL', 'https://graphite.publishing.service.gov.uk')
 RENDER_URL = GRAPHITE_URL + '/render/?format=csv'
 OUTPUT_HEADERS = ['Timestamp', '5xx Responses', 'Total Responses']
@@ -19,18 +19,14 @@ class App:
     '''
     An application in graphite
     '''
-    def __init__(self, name, host_group, host_name):
+    def __init__(self, name):
         self.name = name
-        self.host_group = host_group
-        self.host_name = host_name
 
     def __str__(self):
         return self.name
 
     def response_count_query(self, status='*'):
         return METRIC_PATTERN.format(
-            host_name=self.host_name,
-            host_group=self.host_group,
             app_name=self.name,
             status=status
         )
@@ -59,47 +55,47 @@ class ReportingPeriod:
 
 
 APPS = [
-    App(name='asset-manager', host_name='backend', host_group='backend'),
-    App(name='bouncer', host_name='bouncer', host_group='redirector'),
-    App(name='collections-publisher', host_name='backend', host_group='backend'),
-    App(name='contacts-admin', host_name='backend', host_group='backend'),
-    App(name='content-performance-manager', host_name='backend', host_group='backend'),
-    App(name='content-store', host_name='content-store', host_group='api'),
-    App(name='content-tagger', host_name='backend', host_group='backend'),
-    App(name='email-alert-api', host_name='backend', host_group='backend'),
-    App(name='hmrc-manuals-api', host_name='backend', host_group='backend'),
-    App(name='imminence', host_name='backend', host_group='backend'),
-    App(name='local-links-manager', host_name='backend', host_group='backend'),
-    App(name='manuals-publisher', host_name='backend', host_group='backend'),
-    App(name='mapit', host_name='mapit', host_group='api'),
-    App(name='maslow', host_name='backend', host_group='backend'),
-    App(name='policy-publisher', host_name='backend', host_group='backend'),
-    App(name='publisher', host_name='backend', host_group='backend'),
-    App(name='publishing-api', host_name='publishing-api', host_group='backend'),
-    App(name='release', host_name='backend', host_group='backend'),
-    App(name='rummager', host_name='search', host_group='api'),
-    App(name='search-admin', host_name='backend', host_group='backend'),
-    App(name='short-url-manager', host_name='backend', host_group='backend'),
-    App(name='signon', host_name='backend', host_group='backend'),
-    App(name='specialist-publisher', host_name='backend', host_group='backend'),
-    App(name='support', host_name='backend', host_group='backend'),
-    App(name='support-api', host_name='backend', host_group='backend'),
-    App(name='transition', host_name='backend', host_group='backend'),
-    App(name='travel-advice-publisher', host_name='backend', host_group='backend'),
-    App(name='whitehall-admin', host_name='whitehall-backend', host_group='backend'),
+    App(name='asset-manager'),
+    App(name='bouncer'),
+    App(name='collections-publisher'),
+    App(name='contacts-admin'),
+    App(name='content-performance-manager'),
+    App(name='content-store'),
+    App(name='content-tagger'),
+    App(name='email-alert-api'),
+    App(name='hmrc-manuals-api'),
+    App(name='imminence'),
+    App(name='local-links-manager'),
+    App(name='manuals-publisher'),
+    App(name='mapit'),
+    App(name='maslow'),
+    App(name='policy-publisher'),
+    App(name='publisher'),
+    App(name='publishing-api'),
+    App(name='release'),
+    App(name='rummager'),
+    App(name='search-admin'),
+    App(name='short-url-manager'),
+    App(name='signon'),
+    App(name='specialist-publisher'),
+    App(name='support'),
+    App(name='support-api'),
+    App(name='transition'),
+    App(name='travel-advice-publisher'),
+    App(name='whitehall-admin'),
 
     # Frontend
-    App(name='calculators', host_name='calculators-frontend', host_group='frontend'),
-    App(name='calendars', host_name='calculators-frontend', host_group='frontend'),
-    App(name='government-frontend', host_name='frontend', host_group='frontend'),
-    App(name='info-frontend', host_name='frontend', host_group='frontend'),
-    App(name='manuals-frontend', host_name='frontend', host_group='frontend'),
-    App(name='smartanswers', host_name='calculators-frontend', host_group='frontend'),
-    App(name='whitehall-frontend', host_name='whitehall-frontend', host_group='frontend'),
-    App(name='feedback', host_name='frontend', host_group='frontend'),
-    App(name='finder-frontend', host_name='calculators-frontend', host_group='frontend'),
-    App(name='collections', host_name='frontend', host_group='frontend'),
-    App(name='static', host_name='frontend', host_group='frontend')
+    App(name='calculators'),
+    App(name='calendars'),
+    App(name='government-frontend'),
+    App(name='info-frontend'),
+    App(name='manuals-frontend'),
+    App(name='smartanswers'),
+    App(name='whitehall-frontend'),
+    App(name='feedback'),
+    App(name='finder-frontend'),
+    App(name='collections'),
+    App(name='static')
 ]
 
 
