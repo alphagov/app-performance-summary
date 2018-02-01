@@ -31,7 +31,7 @@ def test_line(time, errors, total, file, lineno):
     else:
         success()
     try:
-        total = float(total)
+        total = float(total) if total != '' else 0
     except ValueError:
         fail('Total should be a number', file=csv_file.name, lineno=i+1)
         return
