@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 # This could obscure cases where a particular machine has a much worse error
 # rate than the others, but we want to make sure that all user requests are
 # counted.
-METRIC_PATTERN = 'sum(stats_counts.*.nginx_logs.{app_name}_publishing_service_gov_uk.http_{status})'
+METRIC_PATTERN = 'sum(stats_counts.*.nginx_logs.{app_name}*.http_{status})'
 GRAPHITE_URL = os.environ.get('GRAPHITE_URL', 'https://graphite.publishing.service.gov.uk')
 RENDER_URL = GRAPHITE_URL + '/render/?format=csv'
 OUTPUT_HEADERS = ['Timestamp', '5xx Responses', 'Total Responses']
