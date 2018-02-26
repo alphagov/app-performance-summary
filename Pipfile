@@ -9,6 +9,7 @@ name = "pypi"
 
 pandas = "*"
 luigi = "*"
+pygsheets = "*"
 
 
 [dev-packages]
