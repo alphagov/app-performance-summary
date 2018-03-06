@@ -1,5 +1,9 @@
+"""
+Extract error rate metrics from graphite.
+"""
 from pipeline_util.pipeline_configuration import PipelineConfiguration
 from pipeline_util.graphite_extract_utility import GraphiteExtractUtility
+from pipeline_util.glossary import GlossaryBuilder
 import pandas as pd
 import os
 
@@ -35,6 +39,14 @@ class ProductionErrorRatesSource:
     Provides error rates data extracted from graphite.  The data source is used to help
     demonstrate the behaviour of the pipeline using fixed data.
     """
+    @staticmethod
+    def glossary():
+        g = GlossaryBuilder()
+        g.describe_variable('timestamp', 'Timestamp defining the bucket of time error rates were counted over.')
+        g.describe_variable('count_total', 'Total number of responses served during the time period')
+        g.describe_variable('count_error', 'Total number of error responses (an HTTP status code of 500-599) served during the time period')
+        return g.glossary
+
     def __init__(self, default_url='https://graphite.publishing.service.gov.uk'):
         self.graphite = GraphiteExtractUtility(default_url=default_url)
 
