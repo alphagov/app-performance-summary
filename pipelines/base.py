@@ -1,8 +1,11 @@
 import luigi
 import pandas as pd
 import datetime
+import logging
+import os
 from pipeline_util.time_period import previous_month, DateRange
 from pipeline_util.pipeline_resource_manager import PipelineResourceManager
+
 
 class BaseTask(luigi.Task):
     """

@@ -20,7 +20,6 @@ class ErrorRatePipelineExtract(BaseTask):
         return self.snapshot_target()
 
     def run(self):
-        print('Fetching {app_name} {date_range}'.format(app_name=self.application, date_range=self.closed_date_range))
         step = ProductionErrorRatesSource()
         data = step.get_error_rates_data(self.application, self.closed_date_range)
         self.save_snapshot(data)
