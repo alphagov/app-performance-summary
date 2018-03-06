@@ -7,6 +7,7 @@ import pandas as pd
 from pipeline_util.pipeline_configuration import PipelineConfiguration
 from pipeline_util.graphite_extract_utility import GraphiteExtractUtility
 from pipeline_util.glossary import GlossaryBuilder
+from pipeline_util.data_frame_validator import DataFrameValidator
 
 METRIC_PATTERN = 'sum(stats_counts.*.nginx_logs.{app_name}*.http_{status})'
 GRAPHITE_DATE = '%Y%m%d'
@@ -73,5 +74,17 @@ class ProductionErrorRatesSource:
             on='timestamp',
             validate = 'one_to_one',
             how='right',
-            suffixes=('_total', '_error')
+            suffixes=('_error', '_total')
         )
+
+    def validate_output(self, data, df_name):
+        validator = DataFrameValidator(df_name)
+        validator.check_column_exists(data, 'timestamp')
+        validator.check_column_exists(data, 'count_total')
+        validator.check_column_exists(data, 'count_error')
+        validator.check_no_empty_values(data, 'timestamp')
+        validator.check_column_has_unique_values(data, 'timestamp')
+        validator.check_column_increases(data, 'timestamp')
+        validator.check_column_values_greater_than(data, 'count_error', -1)
+        validator.check_a_at_least_b(data, 'count_total', 'count_error')
+        self.logger.debug('Output is valid')

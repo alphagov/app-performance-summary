@@ -36,6 +36,12 @@ class ErrorRatePipelineLoad(BaseTask):
             df = self.load_from_step('error_rate_extract', application)
 
             export_step = ExportToGoogleSheets(GoogleSheetClient())
+
+            export_step.validate_input(
+                df,
+                df_name='input from error_rate_extract {}'.format(application)
+            )
+
             export_step.write_data(
                 df,
                 self.filename,
