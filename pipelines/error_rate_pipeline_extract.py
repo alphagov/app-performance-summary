@@ -9,7 +9,8 @@ class ErrorRatePipelineExtract(BaseTask):
     application = luigi.Parameter(
         default='whitehall-admin',
         always_in_help=True,
-        description=("Application to extract error rates for"))
+        description=("Application to extract error rates for")
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(step_name='error_rate_extract', *args, **kwargs)
