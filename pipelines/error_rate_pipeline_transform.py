@@ -20,7 +20,7 @@ class ErrorRatePipelineTransform(BaseTask):
         ]
 
     def __init__(self, *args, **kwargs):
-        super().__init__(step_name='error_rate_transform', *args, **kwargs)
+        super().__init__(task_name='error_rate_transform', *args, **kwargs)
 
         self.segment = self.application
 
@@ -39,10 +39,7 @@ class ErrorRatePipelineTransform(BaseTask):
         )
 
         df = drop_missing_data_step.transform(df)
-
-        # TODO - rewrite snapshotting so it doesn't overwrite the same file
-        # further down.
-        self.save_snapshot(df)
+        self.save_snapshot(df, 'drop_rows_with_missing_data')
 
         drop_missing_data_step.validate_output(
             df,
@@ -55,12 +52,14 @@ class ErrorRatePipelineTransform(BaseTask):
         )
 
         df = aggregate_step.transform(df, self.application, self.closed_date_range)
-        self.save_snapshot(df)
+        self.save_snapshot(df, 'aggregate_error_rates')
 
         aggregate_step.validate_output(
             df,
             df_name='output from error_rates_transform step 2'
         )
+
+        self.save_target_snapshot(df)
 
 
 if __name__ == '__main__':

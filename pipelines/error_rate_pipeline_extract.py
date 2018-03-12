@@ -13,7 +13,7 @@ class ErrorRatePipelineExtract(BaseTask):
     )
 
     def __init__(self, *args, **kwargs):
-        super().__init__(step_name='error_rate_extract', *args, **kwargs)
+        super().__init__(task_name='error_rate_extract', *args, **kwargs)
 
         self.segment = self.application
 
@@ -24,15 +24,14 @@ class ErrorRatePipelineExtract(BaseTask):
         step = ProductionErrorRatesSource()
         data = step.get_error_rates_data(self.application, self.closed_date_range)
 
-        # TODO: because the snapshot is the output, reruns of the job can use
-        # invalid data. We should either use something else as the output or
-        # use a different filename until the data has been validated.
-        self.save_snapshot(data)
+        self.save_snapshot(data, 'production_error_rates_source')
 
         step.validate_output(
             data,
             df_name='output from error_rate_extract {}'.format(self.application)
         )
+
+        self.save_target_snapshot(data)
 
 if __name__ == '__main__':
     luigi.run(main_task_cls=ErrorRatePipelineExtract, local_scheduler=True)
