@@ -1,4 +1,5 @@
 from pipeline_util.pipeline_configuration import PipelineConfiguration
+from pipeline_util.time_period import StartEndDatePhraseGenerator
 import datetime as dt
 import dateutil.relativedelta as rd
 
@@ -87,35 +88,3 @@ class FileNameUtility:
         if file_extension is not None:
             file_name = file_name + "." + file_extension
         return file_name.lower()
-
-
-class StartEndDatePhraseGenerator:
-    PERIOD_TYPES = ['daily', 'weekly', 'monthly']
-
-    def get_period_date_range_phrase(self, period_type, end_date=None):
-        start_date = None
-        if period_type == 'daily':
-            start_date = end_date
-        elif period_type == 'weekly':
-            start_date = end_date - rd.relativedelta(weeks=1) + \
-                         rd.relativedelta(days=1)
-        else:
-            # Assume monthly
-            start_date = end_date - rd.relativedelta(months=1) + \
-                         rd.relativedelta(days=1)
-
-        date_range_phrase = self.get_date_range_phrase(start_date, end_date)
-        return date_range_phrase
-
-    def get_date_range_phrase(self, start_date, end_date):
-        phrase = None
-        start_date_phrase = \
-            start_date.strftime(PipelineConfiguration.DATE_OUTPUT_FORMAT)
-        if start_date == end_date:
-            return start_date_phrase
-
-        end_date_phrase = \
-            end_date.strftime(PipelineConfiguration.DATE_OUTPUT_FORMAT)
-        phrase = \
-            start_date_phrase + '_' + end_date_phrase
-        return phrase
