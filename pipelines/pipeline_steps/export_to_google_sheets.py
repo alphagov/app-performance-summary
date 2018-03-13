@@ -34,7 +34,7 @@ class ExportToGoogleSheets:
         wb.share(share_email, role='writer')
 
     def validate_input(self, data, df_name):
-        validator = DataFrameValidator('ExportToGoogleSheets input')
+        validator = DataFrameValidator(df_name)
         validator.check_not_null(data)
         validator.check_not_empty(data)
         self.logger.debug('Input is valid')

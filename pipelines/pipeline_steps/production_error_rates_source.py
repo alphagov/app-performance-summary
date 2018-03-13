@@ -4,7 +4,6 @@ Extract error rate metrics from graphite.
 import logging
 import os
 import pandas as pd
-from pipeline_util.pipeline_configuration import PipelineConfiguration
 from pipeline_util.graphite_extract_utility import GraphiteExtractUtility
 from pipeline_util.glossary import GlossaryBuilder
 from pipeline_util.data_frame_validator import DataFrameValidator

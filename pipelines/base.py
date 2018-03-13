@@ -18,10 +18,10 @@ class BaseTask(luigi.Task):
         description=("Date interval of report. Defaults to last month.")
     )
 
-    def __init__(self, step_name, *args, **kwargs):
+    def __init__(self, task_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.step_name = step_name
+        self.task_name = task_name
         self.segment = None
 
         if self.date_interval is None:
@@ -35,13 +35,16 @@ class BaseTask(luigi.Task):
     def snapshot_target(self):
         return luigi.LocalTarget(
             self.resource_manager.local_output_file_path(
-                step_name=self.step_name,
+                step_name=self.task_name,
                 segment=self.segment
             )
         )
 
-    def save_snapshot(self, data):
-        self.resource_manager.save_snapshot(data, self.step_name, self.segment)
+    def save_snapshot(self, data, step_name):
+        self.resource_manager.save_snapshot(data, self.task_name + '_step_' + step_name, self.segment)
+
+    def save_target_snapshot(self, data):
+        self.resource_manager.save_snapshot(data, self.task_name, self.segment)
 
     def load_from_step(self, step_name, segment=None):
         return self.resource_manager.load_snapshot(step_name, segment=segment)

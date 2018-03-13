@@ -18,10 +18,10 @@ class ErrorRatePipelineLoad(BaseTask):
         ]
 
     def __init__(self, *args, **kwargs):
-        super().__init__(step_name='error_rate_extract', *args, **kwargs)
+        super().__init__(task_name='error_rate_extract', *args, **kwargs)
 
         self.filename = filename = self.resource_manager.output_file_name(
-            step_name=self.step_name,
+            step_name=self.task_name,
             segment=self.segment
         ).replace('.csv', '')
 
